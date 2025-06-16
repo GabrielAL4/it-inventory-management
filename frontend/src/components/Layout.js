@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, Outlet } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   AppBar,
   Box,
@@ -12,20 +12,21 @@ import {
   ListItemText,
   Toolbar,
   Typography,
-  Button,
+  Divider,
 } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
-import DevicesIcon from '@mui/icons-material/Devices';
 import DashboardIcon from '@mui/icons-material/Dashboard';
+import DevicesIcon from '@mui/icons-material/Devices';
 import LogoutIcon from '@mui/icons-material/Logout';
 import { useAuth } from '../contexts/AuthContext';
 
 const drawerWidth = 240;
 
-const Layout = () => {
+const Layout = ({ children }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -36,25 +37,35 @@ const Layout = () => {
     { text: 'Equipment', icon: <DevicesIcon />, path: '/equipment' },
   ];
 
-  const handleLogout = () => {
-    logout();
-    navigate('/login');
-  };
-
   const drawer = (
     <div>
-      <Toolbar />
+      <Toolbar>
+        <Typography variant="h6" noWrap>
+          IT Inventory
+        </Typography>
+      </Toolbar>
+      <Divider />
       <List>
         {menuItems.map((item) => (
           <ListItem
             button
             key={item.text}
             onClick={() => navigate(item.path)}
+            selected={location.pathname === item.path}
           >
             <ListItemIcon>{item.icon}</ListItemIcon>
             <ListItemText primary={item.text} />
           </ListItem>
         ))}
+      </List>
+      <Divider />
+      <List>
+        <ListItem button onClick={logout}>
+          <ListItemIcon>
+            <LogoutIcon />
+          </ListItemIcon>
+          <ListItemText primary="Logout" />
+        </ListItem>
       </List>
     </div>
   );
@@ -79,12 +90,9 @@ const Layout = () => {
           >
             <MenuIcon />
           </IconButton>
-          <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-            IT Inventory Management
+          <Typography variant="h6" noWrap component="div">
+            {user?.username}
           </Typography>
-          <Button color="inherit" onClick={handleLogout} startIcon={<LogoutIcon />}>
-            Logout
-          </Button>
         </Toolbar>
       </AppBar>
       <Box
@@ -131,7 +139,7 @@ const Layout = () => {
         }}
       >
         <Toolbar />
-        <Outlet />
+        {children}
       </Box>
     </Box>
   );

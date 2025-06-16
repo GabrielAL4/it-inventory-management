@@ -8,7 +8,7 @@ import {
 } from '@mui/material';
 import {
   Laptop as LaptopIcon,
-  Desktop as DesktopIcon,
+  DesktopWindows as DesktopIcon,
   Tv as TvIcon,
   Phone as PhoneIcon,
   Tablet as TabletIcon,

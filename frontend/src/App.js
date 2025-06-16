@@ -1,62 +1,85 @@
 import React from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { ThemeProvider, createTheme } from '@mui/material';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ThemeProvider } from '@mui/material/styles';
 import { AuthProvider, useAuth } from './contexts/AuthContext';
 import Login from './pages/Login';
-import Layout from './components/Layout';
+import Dashboard from './pages/Dashboard';
 import EquipmentList from './pages/EquipmentList';
 import EquipmentForm from './pages/EquipmentForm';
-import Dashboard from './pages/Dashboard';
+import Layout from './components/Layout';
+import theme from './theme';
 
-const theme = createTheme({
-  palette: {
-    primary: {
-      main: '#1976d2',
-    },
-    secondary: {
-      main: '#dc004e',
-    },
-  },
-});
+const PrivateRouteWrapper = ({ children }) => {
+  const { user } = useAuth();
+  return user ? children : <Navigate to="/login" />;
+};
 
-const PrivateRoute = ({ children }) => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return null;
-  }
-
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
-
-  return children;
+const AppRoutes = () => {
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route
+        path="/"
+        element={
+          <PrivateRouteWrapper>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </PrivateRouteWrapper>
+        }
+      />
+      <Route
+        path="/dashboard"
+        element={
+          <PrivateRouteWrapper>
+            <Layout>
+              <Dashboard />
+            </Layout>
+          </PrivateRouteWrapper>
+        }
+      />
+      <Route
+        path="/equipment"
+        element={
+          <PrivateRouteWrapper>
+            <Layout>
+              <EquipmentList />
+            </Layout>
+          </PrivateRouteWrapper>
+        }
+      />
+      <Route
+        path="/equipment/new"
+        element={
+          <PrivateRouteWrapper>
+            <Layout>
+              <EquipmentForm />
+            </Layout>
+          </PrivateRouteWrapper>
+        }
+      />
+      <Route
+        path="/equipment/edit/:id"
+        element={
+          <PrivateRouteWrapper>
+            <Layout>
+              <EquipmentForm />
+            </Layout>
+          </PrivateRouteWrapper>
+        }
+      />
+    </Routes>
+  );
 };
 
 const App = () => {
   return (
     <ThemeProvider theme={theme}>
-      <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<Login />} />
-            <Route
-              path="/"
-              element={
-                <PrivateRoute>
-                  <Layout />
-                </PrivateRoute>
-              }
-            >
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<Dashboard />} />
-              <Route path="equipment" element={<EquipmentList />} />
-              <Route path="equipment/new" element={<EquipmentForm />} />
-              <Route path="equipment/edit/:id" element={<EquipmentForm />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </AuthProvider>
+      <Router>
+        <AuthProvider>
+          <AppRoutes />
+        </AuthProvider>
+      </Router>
     </ThemeProvider>
   );
 };
